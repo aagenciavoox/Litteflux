@@ -1,24 +1,11 @@
 {
-  "name": "littê-flux---erp/crm-para-influenciadores",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@google/genai": "^1.35.0",
-    "@supabase/supabase-js": "^2.90.1",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "recharts": "^3.6.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
-  }
+    "name": "litte-flux-root",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "install:app": "cd Litteflux && npm install",
+        "dev": "cd Litteflux && npm run dev",
+        "build": "cd Litteflux && npm run build",
+        "preview": "cd Litteflux && npm run preview"
+    }
 }
