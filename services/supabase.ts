@@ -7,6 +7,8 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_j
 
 if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_KEY === 'PLACEHOLDER') {
   console.error("Supabase credentials missing or invalid. Check your MPC integration.");
+} else {
+  console.log("Supabase Client Init", { url: SUPABASE_URL });
 }
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);

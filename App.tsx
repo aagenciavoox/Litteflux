@@ -34,9 +34,11 @@ const App: React.FC = () => {
   const [splitRules, setSplitRules] = useState({ gestor: 30, operacional: 30, reserva: 40 });
 
   useEffect(() => {
-    db.getSettings('split_rules').then(rules => {
-      if (rules) setSplitRules(rules);
-    });
+    db.getSettings('split_rules')
+      .then(rules => {
+        if (rules) setSplitRules(rules);
+      })
+      .catch(err => console.error("Erro ao carregar configurações:", err));
   }, []);
 
   const [loadedData, setLoadedData] = useState({ leads: false, campaigns: false, influencers: false });
