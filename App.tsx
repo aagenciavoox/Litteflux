@@ -275,24 +275,45 @@ const App: React.FC = () => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const { data: { session: cur } } = await supabase.auth.getSession();
+        console.log("App: Starting Auth Initialization...");
+
+        // Timeout de segurança para evitar loading infinito
+        const timeoutPromise = new Promise<{ data: { session: any } }>((_, reject) =>
+          setTimeout(() => reject(new Error('Auth Timeout')), 5000)
+        );
+
+        const sessionPromise = supabase.auth.getSession();
+
+        const { data: { session: cur } } = await Promise.race([sessionPromise, timeoutPromise]);
+
+        console.log("App: Session Check Result:", cur ? "Logged In" : "No Session");
+
         if (cur) {
           setSession(cur);
           await loadProfile(cur.user.id);
         }
       } catch (err) {
-        console.error("Auth init error:", err);
+        console.error("Auth init error or timeout:", err);
+        // Em caso de erro/timeout, assumimos sem sessão para liberar a tela de login
+        setSession(null);
       } finally {
+        console.log("App: Finished Initialization, removing spinner.");
         setInitializing(false);
         setLoading(false);
       }
     };
     initAuth();
+
+    // Configuração do Listener de Auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (ev, sess) => {
+      console.log("App: Auth State Changed:", ev);
       try {
         if (sess) {
           setSession(sess);
-          await loadProfile(sess.user.id);
+          // Só recarrega perfil se for login ou mudança de usuário
+          if (ev === 'SIGNED_IN' || ev === 'TOKEN_REFRESHED') {
+            await loadProfile(sess.user.id);
+          }
         } else {
           setSession(null);
           setProfile(null);
