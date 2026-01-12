@@ -1,0 +1,7 @@
+{
+  "name": "Littê Flux - ERP/CRM para Influenciadores",
+  "description": "Uma plataforma completa de ERP e CRM para agências de influenciadores gerenciarem todo o ciclo de vida das campanhas, da prospecção ao acerto financeiro.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
