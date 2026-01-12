@@ -82,8 +82,8 @@ const App: React.FC = () => {
 
   const closeModal = useCallback(() => setActiveModal(null), []);
 
-  const loadProfile = useCallback(async (userId: string) => {
-    console.log("App: loadProfile called for userId:", userId);
+  const loadProfile = useCallback(async (userId: string, attempt = 1) => {
+    console.log(`App: loadProfile called for userId: ${userId} (Attempt ${attempt})`);
     try {
       const userProfile = await auth.getProfile(userId);
       console.log("App: access profile result:", userProfile);
@@ -94,12 +94,25 @@ const App: React.FC = () => {
         setRole(userProfile.role);
       } else {
         console.warn("Perfil não encontrado para o usuário:", userId);
-        await auth.signOut();
+        // Retry logic for empty profile if it's a glitch, otherwise invalid user
+        if (attempt < 3) {
+          console.log("Retrying profile load...");
+          setTimeout(() => loadProfile(userId, attempt + 1), 1000 * attempt);
+        } else {
+          await auth.signOut();
+        }
       }
-    } catch (e) {
-      console.error("Erro ao carregar perfil:", e);
+    } catch (e: any) {
+      console.error(`Erro ao carregar perfil (Tentativa ${attempt}):`, e);
+      if (attempt < 3) {
+        setTimeout(() => loadProfile(userId, attempt + 1), 1500 * attempt);
+      } else {
+        addToast('Erro ao carregar seu perfil. Tente recarregar a página.', 'ERROR');
+        // Optional: Force signout on persistent error?
+        // await auth.signOut();
+      }
     }
-  }, []);
+  }, [addToast]);
 
   // Única função de sincronização otimizada
   const syncAppData = useCallback(async (force = false) => {
