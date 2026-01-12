@@ -25,6 +25,14 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [role, setRole] = useState<UserRole>(UserRole.GUEST);
 
+  // Garantir que a Role sempre reflete o perfil carregado
+  useEffect(() => {
+    if (profile && profile.role !== role) {
+      console.log("Syncing Role State:", profile.role);
+      setRole(profile.role);
+    }
+  }, [profile, role]);
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [influencers, setInfluencers] = useState<Influencer[]>([]);
