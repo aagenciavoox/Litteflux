@@ -2,13 +2,39 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '../database.types';
 import { Lead, Campaign, Influencer, UserProfile, Template, UserRole } from '../types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://zfjfonvjfjtqmhfjjfua.supabase.co';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_jWM31YiwKgt6DfGrG-Adpg_S2NCwwLM';
+// Função auxiliar para ler variáveis de ambiente de forma segura (suporta Vite e possíveis ambientes Node/NextLike)
+const getEnvVar = (key: string, viteKey: string): string => {
+  let value = '';
+  try {
+    // Tenta ler do Vite (import.meta.env)
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[viteKey]) {
+      value = import.meta.env[viteKey];
+    }
+  } catch (e) { /* ignore */ }
 
-if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_KEY === 'PLACEHOLDER') {
-  console.error("Supabase credentials missing or invalid. Check your MPC integration.");
+  if (!value) {
+    try {
+      // Tenta ler do process.env (caso esteja em ambiente Node ou Next.js polifilado)
+      if (typeof process !== 'undefined' && process.env && process.env[key]) {
+        value = process.env[key];
+      }
+    } catch (e) { /* ignore */ }
+  }
+  return value;
+};
+
+// URL e Key com Fallbacks Robustos (Hardcoded fornecidos pelo usuário para garantir funcionamento)
+const SUPABASE_URL = getEnvVar('NEXT_PUBLIC_SUPABASE_URL', 'VITE_SUPABASE_URL') || 'https://zfjfonvjfjtqmhfjjfua.supabase.co';
+const SUPABASE_KEY = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'VITE_SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamZvbnZqZmp0cW1oZmpqZnVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTI3NjksImV4cCI6MjA4MzY2ODc2OX0.Fk545IC2S2S8YZtYULIbFQuZh7i9WSTvyok9CiKNSt4';
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error("CRITICAL: Supabase credentials missing. App may fail to load.");
 } else {
-  console.log("Supabase Client Init", { url: SUPABASE_URL });
+  console.log("Supabase Client Initialized", {
+    url: SUPABASE_URL,
+    keyLength: SUPABASE_KEY?.length,
+    source: SUPABASE_URL.includes('zfjfonvjfjtqmhfjjfua') ? 'Fallback/Hardcoded' : 'Environment'
+  });
 }
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);
