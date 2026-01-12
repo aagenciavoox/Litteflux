@@ -6,6 +6,14 @@ export type Json =
     | { [key: string]: Json | undefined }
     | Json[]
 
+export type DatabaseEnums = {
+    campaign_status: "PLANEJAMENTO" | "EM ANDAMENTO" | "FINALIZADA"
+    lead_phase: "1º CONTATO" | "ORÇAMENTO" | "NEGOCIAÇÃO"
+    lead_status: "AGUARDANDO" | "RECUSADO" | "FECHADO"
+    user_role: "ADMINISTRADOR" | "INFLUENCIADOR" | "CONVIDADO"
+    user_status: "PENDENTE" | "APROVADO" | "BLOQUEADO"
+}
+
 export type Database = {
     public: {
         Tables: {
@@ -49,6 +57,7 @@ export type Database = {
                     conteudo: Json | null
                     contrato: Json | null
                     created_at: string | null
+                    deleted_at: string | null
                     drive_link: string | null
                     end_date: string | null
                     financial: Json | null
@@ -64,7 +73,7 @@ export type Database = {
                     repasse: Json | null
                     roteiro: Json | null
                     start_date: string | null
-                    status: Database["public"]["Enums"]["campaign_status"] | null
+                    status: DatabaseEnums["campaign_status"] | null
                     timeline: Json[] | null
                     title: string
                 }
@@ -75,6 +84,7 @@ export type Database = {
                     conteudo?: Json | null
                     contrato?: Json | null
                     created_at?: string | null
+                    deleted_at?: string | null
                     drive_link?: string | null
                     end_date?: string | null
                     financial?: Json | null
@@ -90,7 +100,7 @@ export type Database = {
                     repasse?: Json | null
                     roteiro?: Json | null
                     start_date?: string | null
-                    status?: Database["public"]["Enums"]["campaign_status"] | null
+                    status?: DatabaseEnums["campaign_status"] | null
                     timeline?: Json[] | null
                     title: string
                 }
@@ -101,6 +111,7 @@ export type Database = {
                     conteudo?: Json | null
                     contrato?: Json | null
                     created_at?: string | null
+                    deleted_at?: string | null
                     drive_link?: string | null
                     end_date?: string | null
                     financial?: Json | null
@@ -116,7 +127,7 @@ export type Database = {
                     repasse?: Json | null
                     roteiro?: Json | null
                     start_date?: string | null
-                    status?: Database["public"]["Enums"]["campaign_status"] | null
+                    status?: DatabaseEnums["campaign_status"] | null
                     timeline?: Json[] | null
                     title?: string
                 }
@@ -138,6 +149,7 @@ export type Database = {
                     complemento: string | null
                     cpf: string | null
                     created_at: string | null
+                    deleted_at: string | null
                     data_cadastro: string | null
                     email: string
                     endereco_nome: string | null
@@ -183,6 +195,7 @@ export type Database = {
                     complemento?: string | null
                     cpf?: string | null
                     created_at?: string | null
+                    deleted_at?: string | null
                     data_cadastro?: string | null
                     email: string
                     endereco_nome?: string | null
@@ -228,6 +241,7 @@ export type Database = {
                     complemento?: string | null
                     cpf?: string | null
                     created_at?: string | null
+                    deleted_at?: string | null
                     data_cadastro?: string | null
                     email?: string
                     endereco_nome?: string | null
@@ -264,15 +278,16 @@ export type Database = {
                     campaign_object: string | null
                     closed_value: number | null
                     created_at: string | null
+                    deleted_at: string | null
                     id: string
                     influencer_ids: string[] | null
                     last_contact: string | null
-                    phase: Database["public"]["Enums"]["lead_phase"] | null
+                    phase: DatabaseEnums["lead_phase"] | null
                     proposed_value: number | null
                     responsible: string | null
                     scope: string | null
                     start_date: string | null
-                    status: Database["public"]["Enums"]["lead_status"] | null
+                    status: DatabaseEnums["lead_status"] | null
                     timeline: Json[] | null
                     value: number | null
                 }
@@ -281,15 +296,16 @@ export type Database = {
                     campaign_object?: string | null
                     closed_value?: number | null
                     created_at?: string | null
+                    deleted_at?: string | null
                     id?: string
                     influencer_ids?: string[] | null
                     last_contact?: string | null
-                    phase?: Database["public"]["Enums"]["lead_phase"] | null
+                    phase?: DatabaseEnums["lead_phase"] | null
                     proposed_value?: number | null
                     responsible?: string | null
                     scope?: string | null
                     start_date?: string | null
-                    status?: Database["public"]["Enums"]["lead_status"] | null
+                    status?: DatabaseEnums["lead_status"] | null
                     timeline?: Json[] | null
                     value?: number | null
                 }
@@ -298,15 +314,16 @@ export type Database = {
                     campaign_object?: string | null
                     closed_value?: number | null
                     created_at?: string | null
+                    deleted_at?: string | null
                     id?: string
                     influencer_ids?: string[] | null
                     last_contact?: string | null
-                    phase?: Database["public"]["Enums"]["lead_phase"] | null
+                    phase?: DatabaseEnums["lead_phase"] | null
                     proposed_value?: number | null
                     responsible?: string | null
                     scope?: string | null
                     start_date?: string | null
-                    status?: Database["public"]["Enums"]["lead_status"] | null
+                    status?: DatabaseEnums["lead_status"] | null
                     timeline?: Json[] | null
                     value?: number | null
                 }
@@ -353,8 +370,8 @@ export type Database = {
                     email: string
                     full_name: string | null
                     id: string
-                    role: Database["public"]["Enums"]["user_role"] | null
-                    status: Database["public"]["Enums"]["user_status"] | null
+                    role: DatabaseEnums["user_role"] | null
+                    status: DatabaseEnums["user_status"] | null
                     updated_at: string | null
                 }
                 Insert: {
@@ -363,8 +380,8 @@ export type Database = {
                     email: string
                     full_name?: string | null
                     id: string
-                    role?: Database["public"]["Enums"]["user_role"] | null
-                    status?: Database["public"]["Enums"]["user_status"] | null
+                    role?: DatabaseEnums["user_role"] | null
+                    status?: DatabaseEnums["user_status"] | null
                     updated_at?: string | null
                 }
                 Update: {
@@ -373,8 +390,8 @@ export type Database = {
                     email?: string
                     full_name?: string | null
                     id?: string
-                    role?: Database["public"]["Enums"]["user_role"] | null
-                    status?: Database["public"]["Enums"]["user_status"] | null
+                    role?: DatabaseEnums["user_role"] | null
+                    status?: DatabaseEnums["user_status"] | null
                     updated_at?: string | null
                 }
             }
@@ -448,21 +465,21 @@ export type Database = {
                 Row: {
                     id: string
                     email: string
-                    role: Database["public"]["Enums"]["user_role"]
+                    role: DatabaseEnums["user_role"]
                     created_at: string | null
                     created_by: string | null
                 }
                 Insert: {
                     id?: string
                     email: string
-                    role: Database["public"]["Enums"]["user_role"]
+                    role: DatabaseEnums["user_role"]
                     created_at?: string | null
                     created_by?: string | null
                 }
                 Update: {
                     id?: string
                     email?: string
-                    role?: Database["public"]["Enums"]["user_role"]
+                    role?: DatabaseEnums["user_role"]
                     created_at?: string | null
                     created_by?: string | null
                 }
@@ -481,13 +498,7 @@ export type Database = {
                 Returns: boolean
             }
         }
-        Enums: {
-            campaign_status: "PLANEJAMENTO" | "EM ANDAMENTO" | "FINALIZADA"
-            lead_phase: "1º CONTATO" | "ORÇAMENTO" | "NEGOCIAÇÃO"
-            lead_status: "AGUARDANDO" | "RECUSADO" | "FECHADO"
-            user_role: "ADMINISTRADOR" | "INFLUENCIADOR" | "CONVIDADO"
-            user_status: "PENDENTE" | "APROVADO" | "BLOQUEADO"
-        }
+        Enums: DatabaseEnums
         CompositeTypes: {
             [_ in never]: never
         }
