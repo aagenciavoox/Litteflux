@@ -6,15 +6,12 @@ export type Json =
     | { [key: string]: Json | undefined }
     | Json[]
 
-export type DatabaseEnums = {
-    campaign_status: "PLANEJAMENTO" | "EM ANDAMENTO" | "FINALIZADA"
-    lead_phase: "1º CONTATO" | "ORÇAMENTO" | "NEGOCIAÇÃO"
-    lead_status: "AGUARDANDO" | "RECUSADO" | "FECHADO"
-    user_role: "ADMINISTRADOR" | "INFLUENCIADOR" | "CONVIDADO"
-    user_status: "PENDENTE" | "APROVADO" | "BLOQUEADO"
-}
-
 export type Database = {
+    // Allows to automatically instantiate createClient with right options
+    // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+    __InternalSupabase: {
+        PostgrestVersion: "14.1"
+    }
     public: {
         Tables: {
             audit_logs: {
@@ -48,6 +45,15 @@ export type Database = {
                     old_values?: Json | null
                     user_id?: string | null
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "audit_logs_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
             }
             campaigns: {
                 Row: {
@@ -73,8 +79,8 @@ export type Database = {
                     repasse: Json | null
                     roteiro: Json | null
                     start_date: string | null
-                    status: DatabaseEnums["campaign_status"] | null
-                    timeline: Json[] | null
+                    status: Database["public"]["Enums"]["campaign_status"] | null
+                    timeline: Json | null
                     title: string
                 }
                 Insert: {
@@ -100,8 +106,8 @@ export type Database = {
                     repasse?: Json | null
                     roteiro?: Json | null
                     start_date?: string | null
-                    status?: DatabaseEnums["campaign_status"] | null
-                    timeline?: Json[] | null
+                    status?: Database["public"]["Enums"]["campaign_status"] | null
+                    timeline?: Json | null
                     title: string
                 }
                 Update: {
@@ -127,20 +133,21 @@ export type Database = {
                     repasse?: Json | null
                     roteiro?: Json | null
                     start_date?: string | null
-                    status?: DatabaseEnums["campaign_status"] | null
-                    timeline?: Json[] | null
+                    status?: Database["public"]["Enums"]["campaign_status"] | null
+                    timeline?: Json | null
                     title?: string
                 }
+                Relationships: []
             }
             influencers: {
                 Row: {
                     avatar: string | null
+                    bairro: string | null
                     banco_agencia: string | null
                     banco_conta: string | null
                     banco_nome: string | null
                     banco_pix: string | null
                     banco_tipo: string | null
-                    bairro: string | null
                     calca: string | null
                     camiseta: string | null
                     cep: string | null
@@ -149,8 +156,8 @@ export type Database = {
                     complemento: string | null
                     cpf: string | null
                     created_at: string | null
-                    deleted_at: string | null
                     data_cadastro: string | null
+                    deleted_at: string | null
                     email: string
                     endereco_nome: string | null
                     estado: string | null
@@ -181,12 +188,12 @@ export type Database = {
                 }
                 Insert: {
                     avatar?: string | null
+                    bairro?: string | null
                     banco_agencia?: string | null
                     banco_conta?: string | null
                     banco_nome?: string | null
                     banco_pix?: string | null
                     banco_tipo?: string | null
-                    bairro?: string | null
                     calca?: string | null
                     camiseta?: string | null
                     cep?: string | null
@@ -195,8 +202,8 @@ export type Database = {
                     complemento?: string | null
                     cpf?: string | null
                     created_at?: string | null
-                    deleted_at?: string | null
                     data_cadastro?: string | null
+                    deleted_at?: string | null
                     email: string
                     endereco_nome?: string | null
                     estado?: string | null
@@ -227,12 +234,12 @@ export type Database = {
                 }
                 Update: {
                     avatar?: string | null
+                    bairro?: string | null
                     banco_agencia?: string | null
                     banco_conta?: string | null
                     banco_nome?: string | null
                     banco_pix?: string | null
                     banco_tipo?: string | null
-                    bairro?: string | null
                     calca?: string | null
                     camiseta?: string | null
                     cep?: string | null
@@ -241,8 +248,8 @@ export type Database = {
                     complemento?: string | null
                     cpf?: string | null
                     created_at?: string | null
-                    deleted_at?: string | null
                     data_cadastro?: string | null
+                    deleted_at?: string | null
                     email?: string
                     endereco_nome?: string | null
                     estado?: string | null
@@ -271,6 +278,7 @@ export type Database = {
                     url_pasta_drive?: string | null
                     usuario?: string
                 }
+                Relationships: []
             }
             leads: {
                 Row: {
@@ -282,13 +290,13 @@ export type Database = {
                     id: string
                     influencer_ids: string[] | null
                     last_contact: string | null
-                    phase: DatabaseEnums["lead_phase"] | null
+                    phase: Database["public"]["Enums"]["lead_phase"] | null
                     proposed_value: number | null
                     responsible: string | null
                     scope: string | null
                     start_date: string | null
-                    status: DatabaseEnums["lead_status"] | null
-                    timeline: Json[] | null
+                    status: Database["public"]["Enums"]["lead_status"] | null
+                    timeline: Json | null
                     value: number | null
                 }
                 Insert: {
@@ -300,13 +308,13 @@ export type Database = {
                     id?: string
                     influencer_ids?: string[] | null
                     last_contact?: string | null
-                    phase?: DatabaseEnums["lead_phase"] | null
+                    phase?: Database["public"]["Enums"]["lead_phase"] | null
                     proposed_value?: number | null
                     responsible?: string | null
                     scope?: string | null
                     start_date?: string | null
-                    status?: DatabaseEnums["lead_status"] | null
-                    timeline?: Json[] | null
+                    status?: Database["public"]["Enums"]["lead_status"] | null
+                    timeline?: Json | null
                     value?: number | null
                 }
                 Update: {
@@ -318,15 +326,16 @@ export type Database = {
                     id?: string
                     influencer_ids?: string[] | null
                     last_contact?: string | null
-                    phase?: DatabaseEnums["lead_phase"] | null
+                    phase?: Database["public"]["Enums"]["lead_phase"] | null
                     proposed_value?: number | null
                     responsible?: string | null
                     scope?: string | null
                     start_date?: string | null
-                    status?: DatabaseEnums["lead_status"] | null
-                    timeline?: Json[] | null
+                    status?: Database["public"]["Enums"]["lead_status"] | null
+                    timeline?: Json | null
                     value?: number | null
                 }
+                Relationships: []
             }
             notifications: {
                 Row: {
@@ -334,177 +343,366 @@ export type Database = {
                     created_at: string | null
                     event_date: string | null
                     id: string
-                    message: string | null
+                    message: string
                     read: boolean | null
                     title: string
-                    type: string | null
-                    user_id: string | null
+                    type: string
+                    user_id: string
                 }
                 Insert: {
                     campaign_id?: string | null
                     created_at?: string | null
                     event_date?: string | null
                     id?: string
-                    message?: string | null
+                    message: string
                     read?: boolean | null
                     title: string
-                    type?: string | null
-                    user_id?: string | null
+                    type: string
+                    user_id: string
                 }
                 Update: {
                     campaign_id?: string | null
                     created_at?: string | null
                     event_date?: string | null
                     id?: string
-                    message?: string | null
+                    message?: string
                     read?: boolean | null
                     title?: string
-                    type?: string | null
-                    user_id?: string | null
+                    type?: string
+                    user_id?: string
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "notifications_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
+            pre_approved_emails: {
+                Row: {
+                    created_at: string | null
+                    created_by: string | null
+                    email: string
+                    role: Database["public"]["Enums"]["user_role"] | null
+                }
+                Insert: {
+                    created_at?: string | null
+                    created_by?: string | null
+                    email: string
+                    role?: Database["public"]["Enums"]["user_role"] | null
+                }
+                Update: {
+                    created_at?: string | null
+                    created_by?: string | null
+                    email?: string
+                    role?: Database["public"]["Enums"]["user_role"] | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "pre_approved_emails_created_by_fkey"
+                        columns: ["created_by"]
+                        isOneToOne: false
+                        referencedRelation: "users"
+                        referencedColumns: ["id"]
+                    },
+                ]
             }
             profiles: {
                 Row: {
-                    avatar_url: string | null
                     created_at: string | null
                     email: string
                     full_name: string | null
                     id: string
-                    role: DatabaseEnums["user_role"] | null
-                    status: DatabaseEnums["user_status"] | null
+                    is_admin: boolean | null
+                    permissions: Json | null
+                    role: Database["public"]["Enums"]["user_role"] | null
+                    status: Database["public"]["Enums"]["user_status"] | null
                     updated_at: string | null
                 }
                 Insert: {
-                    avatar_url?: string | null
                     created_at?: string | null
                     email: string
                     full_name?: string | null
                     id: string
-                    role?: DatabaseEnums["user_role"] | null
-                    status?: DatabaseEnums["user_status"] | null
+                    is_admin?: boolean | null
+                    permissions?: Json | null
+                    role?: Database["public"]["Enums"]["user_role"] | null
+                    status?: Database["public"]["Enums"]["user_status"] | null
                     updated_at?: string | null
                 }
                 Update: {
-                    avatar_url?: string | null
                     created_at?: string | null
                     email?: string
                     full_name?: string | null
                     id?: string
-                    role?: DatabaseEnums["user_role"] | null
-                    status?: DatabaseEnums["user_status"] | null
+                    is_admin?: boolean | null
+                    permissions?: Json | null
+                    role?: Database["public"]["Enums"]["user_role"] | null
+                    status?: Database["public"]["Enums"]["user_status"] | null
                     updated_at?: string | null
                 }
-            }
-            templates: {
-                Row: {
-                    created_at: string | null
-                    description: string | null
-                    id: string
-                    tasks: string[] | null
-                    title: string
-                }
-                Insert: {
-                    created_at?: string | null
-                    description?: string | null
-                    id?: string
-                    tasks?: string[] | null
-                    title: string
-                }
-                Update: {
-                    created_at?: string | null
-                    description?: string | null
-                    id?: string
-                    tasks?: string[] | null
-                    title?: string
-                }
+                Relationships: [
+                    {
+                        foreignKeyName: "profiles_id_fkey"
+                        columns: ["id"]
+                        isOneToOne: true
+                        referencedRelation: "users"
+                        referencedColumns: ["id"]
+                    },
+                ]
             }
             settings: {
                 Row: {
                     key: string
-                    value: Json | null
                     updated_at: string | null
+                    value: Json
                 }
                 Insert: {
                     key: string
-                    value?: Json | null
                     updated_at?: string | null
+                    value: Json
                 }
                 Update: {
                     key?: string
-                    value?: Json | null
                     updated_at?: string | null
+                    value?: Json
                 }
+                Relationships: []
             }
             system_notes: {
                 Row: {
-                    id: string
-                    title: string
+                    color: string | null
                     content: string
-                    color: string
                     created_at: string | null
                     created_by: string | null
+                    id: string
+                    title: string
+                    updated_at: string | null
                 }
                 Insert: {
-                    id?: string
-                    title: string
+                    color?: string | null
                     content: string
-                    color: string
                     created_at?: string | null
                     created_by?: string | null
+                    id?: string
+                    title: string
+                    updated_at?: string | null
                 }
                 Update: {
+                    color?: string | null
+                    content?: string
+                    created_at?: string | null
+                    created_by?: string | null
                     id?: string
                     title?: string
-                    content?: string
-                    color?: string
-                    created_at?: string | null
-                    created_by?: string | null
+                    updated_at?: string | null
                 }
+                Relationships: [
+                    {
+                        foreignKeyName: "system_notes_created_by_fkey"
+                        columns: ["created_by"]
+                        isOneToOne: false
+                        referencedRelation: "users"
+                        referencedColumns: ["id"]
+                    },
+                ]
             }
-            pre_approved_emails: {
+            templates: {
                 Row: {
-                    id: string
-                    email: string
-                    role: DatabaseEnums["user_role"]
+                    content: string
                     created_at: string | null
-                    created_by: string | null
+                    id: string
+                    name: string
+                    type: string
                 }
                 Insert: {
-                    id?: string
-                    email: string
-                    role: DatabaseEnums["user_role"]
+                    content: string
                     created_at?: string | null
-                    created_by?: string | null
+                    id?: string
+                    name: string
+                    type: string
                 }
                 Update: {
-                    id?: string
-                    email?: string
-                    role?: DatabaseEnums["user_role"]
+                    content?: string
                     created_at?: string | null
-                    created_by?: string | null
+                    id?: string
+                    name?: string
+                    type?: string
                 }
+                Relationships: []
             }
         }
         Views: {
             [_ in never]: never
         }
         Functions: {
-            get_user_profile: {
-                Args: { target_id: string }
-                Returns: Json
-            }
-            is_admin: {
-                Args: Record<PropertyKey, never>
+            check_user_permission: {
+                Args: {
+                    p_user_id: string
+                    p_module: string
+                    p_action: string
+                }
                 Returns: boolean
             }
-            is_approved: {
-                Args: Record<PropertyKey, never>
+            get_user_profile: {
+                Args: {
+                    target_id: string
+                }
+                Returns: Json
+            }
+            get_user_profile_with_permissions: {
+                Args: {
+                    p_user_id: string
+                }
+                Returns: {
+                    id: string
+                    email: string
+                    full_name: string | null
+                    role: Database["public"]["Enums"]["user_role"] | null
+                    status: Database["public"]["Enums"]["user_status"] | null
+                    is_admin: boolean | null
+                    permissions: Json | null
+                    created_at: string | null
+                    updated_at: string | null
+                }[]
+            }
+            promote_to_admin: {
+                Args: {
+                    p_user_id: string
+                }
+                Returns: boolean
+            }
+            update_user_permissions: {
+                Args: {
+                    p_user_id: string
+                    p_permissions: Json
+                }
                 Returns: boolean
             }
         }
-        Enums: DatabaseEnums
+        Enums: {
+            campaign_status: "PLANEJAMENTO" | "EM ANDAMENTO" | "FINALIZADA"
+            lead_phase: "1º CONTATO" | "ORÇAMENTO" | "NEGOCIAÇÃO"
+            lead_status: "AGUARDANDO" | "RECUSADO" | "FECHADO"
+            user_role: "ADMINISTRADOR" | "INFLUENCIADOR" | "CONVIDADO"
+            user_status: "PENDENTE" | "APROVADO" | "BLOQUEADO"
+        }
         CompositeTypes: {
             [_ in never]: never
         }
     }
 }
+
+type DefaultSchema = Database["public"]
+
+export type Tables<
+    DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof Database },
+    TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+    ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+            Row: infer R
+        }
+    ? R
+    : never
+    : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+            Row: infer R
+        }
+    ? R
+    : never
+    : never
+
+export type TablesInsert<
+    DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+    TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+    ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+        Insert: infer I
+    }
+    ? I
+    : never
+    : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+    }
+    ? I
+    : never
+    : never
+
+export type TablesUpdate<
+    DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+    TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+    ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+        Update: infer U
+    }
+    ? U
+    : never
+    : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+    }
+    ? U
+    : never
+    : never
+
+export type Enums<
+    DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof Database },
+    EnumName extends DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+    ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+    : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+    PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof Database },
+    CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+        schema: keyof Database
+    }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+}
+    ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+    : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+    public: {
+        Enums: {
+            campaign_status: ["PLANEJAMENTO", "EM ANDAMENTO", "FINALIZADA"],
+            lead_phase: ["1º CONTATO", "ORÇAMENTO", "NEGOCIAÇÃO"],
+            lead_status: ["AGUARDANDO", "RECUSADO", "FECHADO"],
+            user_role: ["ADMINISTRADOR", "INFLUENCIADOR", "CONVIDADO"],
+            user_status: ["PENDENTE", "APROVADO", "BLOQUEADO"],
+        },
+    },
+} as const

@@ -18,6 +18,17 @@ export interface UserProfile {
   status: UserStatus;
   full_name?: string;
   avatar_url?: string;
+  is_admin?: boolean;
+  permissions?: {
+    [module: string]: {
+      view?: boolean;
+      edit?: boolean;
+      create?: boolean;
+      delete?: boolean;
+    };
+  };
+  created_at?: string;
+  updated_at?: string;
 }
 
 export enum LeadStatus {

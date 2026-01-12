@@ -23,19 +23,20 @@ const getEnvVar = (key: string, viteKey: string): string => {
   return value;
 };
 
-// URL e Key com Fallbacks Robustos (Hardcoded fornecidos pelo usuário para garantir funcionamento)
-const SUPABASE_URL = getEnvVar('NEXT_PUBLIC_SUPABASE_URL', 'VITE_SUPABASE_URL') || 'https://zfjfonvjfjtqmhfjjfua.supabase.co';
-const SUPABASE_KEY = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'VITE_SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamZvbnZqZmp0cW1oZmpqZnVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTI3NjksImV4cCI6MjA4MzY2ODc2OX0.Fk545IC2S2S8YZtYULIbFQuZh7i9WSTvyok9CiKNSt4';
+// URL e Key - APENAS de variáveis de ambiente (SEGURANÇA)
+const SUPABASE_URL = getEnvVar('NEXT_PUBLIC_SUPABASE_URL', 'VITE_SUPABASE_URL');
+const SUPABASE_KEY = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'VITE_SUPABASE_ANON_KEY');
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("CRITICAL: Supabase credentials missing. App may fail to load.");
-} else {
-  console.log("Supabase Client Initialized", {
-    url: SUPABASE_URL,
-    keyLength: SUPABASE_KEY?.length,
-    source: SUPABASE_URL.includes('zfjfonvjfjtqmhfjjfua') ? 'Fallback/Hardcoded' : 'Environment'
-  });
+  console.error("CRITICAL: Supabase credentials missing. Please check your environment variables.");
+  throw new Error("Missing Supabase credentials. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file.");
 }
+
+console.log("Supabase Client Initialized", {
+  url: SUPABASE_URL,
+  keyLength: SUPABASE_KEY?.length,
+  source: 'Environment Variables'
+});
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);
 
@@ -298,6 +299,61 @@ export const auth = {
 
     // RPC returns JSON, so we cast it. If null, it returns null.
     return data as unknown as UserProfile;
+  },
+
+  async getProfileWithPermissions(userId: string): Promise<UserProfile | null> {
+    console.log("SupabaseService: fetching profile with permissions for", userId);
+    const { data, error } = await supabase.rpc('get_user_profile_with_permissions', { p_user_id: userId });
+
+    if (error) {
+      console.error("Erro ao buscar perfil com permissões:", error.message);
+      throw error;
+    }
+
+    // RPC retorna um array, pegar o primeiro elemento
+    return data && data.length > 0 ? data[0] as UserProfile : null;
+  },
+
+  async checkPermission(userId: string, module: string, action: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('check_user_permission', {
+      p_user_id: userId,
+      p_module: module,
+      p_action: action
+    });
+
+    if (error) {
+      console.error("Erro ao verificar permissão:", error.message);
+      return false;
+    }
+
+    return data === true;
+  },
+
+  async updateUserPermissions(userId: string, permissions: any): Promise<boolean> {
+    const { data, error } = await supabase.rpc('update_user_permissions', {
+      p_user_id: userId,
+      p_permissions: permissions
+    });
+
+    if (error) {
+      console.error("Erro ao atualizar permissões:", error.message);
+      throw error;
+    }
+
+    return data === true;
+  },
+
+  async promoteToAdmin(userId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('promote_to_admin', {
+      p_user_id: userId
+    });
+
+    if (error) {
+      console.error("Erro ao promover usuário a admin:", error.message);
+      throw error;
+    }
+
+    return data === true;
   }
 };
 
