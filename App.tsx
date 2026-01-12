@@ -340,8 +340,14 @@ const App: React.FC = () => {
       try {
         if (sess) {
           setSession(sess);
-          // Só recarrega perfil se for login ou mudança de usuário
-          if (ev === 'SIGNED_IN' || ev === 'TOKEN_REFRESHED') {
+          // Recarrega perfil sempre que houver sessão válida e:
+          // 1. Não temos perfil carregado ainda (reload da página)
+          // 2. O usuário mudou (novo login)
+          // 3. É um evento de login explícito
+          const shouldLoadProfile = !profile || profile.id !== sess.user.id || ev === 'SIGNED_IN';
+
+          if (shouldLoadProfile) {
+            console.log("App: Loading profile due to auth change:", ev);
             await loadProfile(sess.user.id);
           }
         } else {
