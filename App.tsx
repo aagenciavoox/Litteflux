@@ -82,34 +82,51 @@ const App: React.FC = () => {
 
   const closeModal = useCallback(() => setActiveModal(null), []);
 
-  const loadProfile = useCallback(async (userId: string, attempt = 1) => {
-    console.log(`App: loadProfile called for userId: ${userId} (Attempt ${attempt})`);
-    try {
-      const userProfile = await auth.getProfile(userId);
-      console.log("App: access profile result:", userProfile);
+  const loadProfile = useCallback(async (userId: string) => {
+    // 1. Otimização: Tentar ler cache local primeiro para evitar "flicker" de Guest sem necessidade
+    const cachedRole = localStorage.getItem(`role_${userId}`);
+    if (cachedRole) {
+      console.log("App: Using cached role:", cachedRole);
+      setRole(cachedRole as UserRole);
+    }
 
-      if (userProfile) {
-        console.log("App: setting profile and role:", userProfile.role);
-        setProfile(userProfile);
-        setRole(userProfile.role);
-      } else {
-        console.warn("Perfil não encontrado para o usuário:", userId);
-        // Retry logic for empty profile if it's a glitch, otherwise invalid user
-        if (attempt < 3) {
-          console.log("Retrying profile load...");
-          setTimeout(() => loadProfile(userId, attempt + 1), 1000 * attempt);
+    let attempt = 1;
+    let loaded = false;
+
+    while (attempt <= 3 && !loaded) {
+      console.log(`App: loadProfile attempt ${attempt} for ${userId}`);
+      try {
+        const userProfile = await auth.getProfile(userId);
+
+        if (userProfile) {
+          console.log("App: Profile Loaded:", userProfile.role);
+          setProfile(userProfile);
+          setRole(userProfile.role);
+
+          // Persistir cache
+          localStorage.setItem(`role_${userId}`, userProfile.role);
+          loaded = true;
         } else {
-          await auth.signOut();
+          console.warn(`App: Profile empty on attempt ${attempt}`);
+        }
+      } catch (e) {
+        console.error(`App: Profile load error attempt ${attempt}:`, e);
+      }
+
+      if (!loaded) {
+        attempt++;
+        if (attempt <= 3) {
+          await new Promise(r => setTimeout(r, 1500)); // Espera real bloqueante
         }
       }
-    } catch (e: any) {
-      console.error(`Erro ao carregar perfil (Tentativa ${attempt}):`, e);
-      if (attempt < 3) {
-        setTimeout(() => loadProfile(userId, attempt + 1), 1500 * attempt);
-      } else {
-        addToast('Erro ao carregar seu perfil. Tente recarregar a página.', 'ERROR');
-        // Optional: Force signout on persistent error?
-        // await auth.signOut();
+    }
+
+    if (!loaded) {
+      console.error("App: Failed to load profile after retries.");
+      // Se não conseguimos carregar e não temos cache, talvez seja melhor deslogar
+      if (!cachedRole) {
+        addToast('Erro crítico de perfil. Reconectando...', 'ERROR');
+        await auth.signOut();
       }
     }
   }, [addToast]);
