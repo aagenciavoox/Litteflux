@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { auth } from '../services/supabase';
+import { auth, supabase } from '../services/supabase';
 import { UserProfile } from '../types';
 
 /**
@@ -18,26 +18,46 @@ export const usePermissions = (userId: string | undefined) => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!userId) {
-            setLoading(false);
-            return;
-        }
+        let mounted = true;
 
-        const loadProfile = async () => {
+        const loadProfile = async (targetId?: string) => {
             try {
                 setLoading(true);
-                const userProfile = await auth.getProfileWithPermissions(userId);
-                setProfile(userProfile);
-                setError(null);
+
+                // Se não foi informado userId, obter usuário da sessão atual
+                let id = targetId;
+                if (!id) {
+                    const session = await supabase.auth.getUser();
+                    id = session?.data?.user?.id;
+                }
+
+                if (!id) {
+                    if (mounted) {
+                        setProfile(null);
+                        setError(null);
+                        setLoading(false);
+                    }
+                    return;
+                }
+
+                const userProfile = await auth.getProfileWithPermissions(id);
+                if (mounted) {
+                    setProfile(userProfile);
+                    setError(null);
+                }
             } catch (err) {
                 console.error('Erro ao carregar permissões:', err);
-                setError('Erro ao carregar permissões');
+                if (mounted) setError('Erro ao carregar permissões');
             } finally {
-                setLoading(false);
+                if (mounted) setLoading(false);
             }
         };
 
-        loadProfile();
+        loadProfile(userId);
+
+        return () => {
+            mounted = false;
+        };
     }, [userId]);
 
     /**

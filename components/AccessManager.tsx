@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { db } from '../services/supabase';
+import { db, supabase, auth } from '../services/supabase';
 import { UserProfile, UserRole, UserStatus } from '../types';
 import { Button } from './Modals';
 
@@ -14,6 +14,25 @@ const AccessManager: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
+            // Verificar se o usuário atual é admin antes de carregar dados sensíveis
+            const session = await supabase.auth.getUser();
+            const userId = session?.data?.user?.id;
+            if (!userId) {
+                setProfiles([]);
+                setPreApproved([]);
+                setLoading(false);
+                return;
+            }
+
+            const userProfile = await auth.getProfileWithPermissions(userId);
+            if (!userProfile || !userProfile.is_admin) {
+                // Não autorizado
+                setProfiles([]);
+                setPreApproved([]);
+                setLoading(false);
+                return;
+            }
+
             const [profilesData, preApprovedData] = await Promise.all([
                 db.getProfiles(),
                 db.getPreApprovedEmails()
