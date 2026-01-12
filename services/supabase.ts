@@ -398,7 +398,8 @@ export const db = {
   async getSettings(key: string) {
     const { data, error } = await supabase.from('settings').select('value').eq('key', key).single();
     if (error && error.code !== 'PGRST116') throw error; // Ignorar erro de não encontrado
-    return data?.value || null;
+    if (!data) return null;
+    return (data as any).value;
   },
   async updateSettings(key: string, value: any) {
     const { error } = await (supabase.from('settings') as any).upsert({ key, value, updated_at: new Date() });

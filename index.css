@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Since the project uses a CDN for Tailwind in index.html, 
+  this file might not be strictly necessary for styles, 
+  but is good practice if we switch to a build process.
+*/
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}

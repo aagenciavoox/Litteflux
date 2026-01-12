@@ -401,6 +401,72 @@ export type Database = {
                     title?: string
                 }
             }
+            settings: {
+                Row: {
+                    key: string
+                    value: Json | null
+                    updated_at: string | null
+                }
+                Insert: {
+                    key: string
+                    value?: Json | null
+                    updated_at?: string | null
+                }
+                Update: {
+                    key?: string
+                    value?: Json | null
+                    updated_at?: string | null
+                }
+            }
+            system_notes: {
+                Row: {
+                    id: string
+                    title: string
+                    content: string
+                    color: string
+                    created_at: string | null
+                    created_by: string | null
+                }
+                Insert: {
+                    id?: string
+                    title: string
+                    content: string
+                    color: string
+                    created_at?: string | null
+                    created_by?: string | null
+                }
+                Update: {
+                    id?: string
+                    title?: string
+                    content?: string
+                    color?: string
+                    created_at?: string | null
+                    created_by?: string | null
+                }
+            }
+            pre_approved_emails: {
+                Row: {
+                    id: string
+                    email: string
+                    role: Database["public"]["Enums"]["user_role"]
+                    created_at: string | null
+                    created_by: string | null
+                }
+                Insert: {
+                    id?: string
+                    email: string
+                    role: Database["public"]["Enums"]["user_role"]
+                    created_at?: string | null
+                    created_by?: string | null
+                }
+                Update: {
+                    id?: string
+                    email?: string
+                    role?: Database["public"]["Enums"]["user_role"]
+                    created_at?: string | null
+                    created_by?: string | null
+                }
+            }
         }
         Views: {
             [_ in never]: never

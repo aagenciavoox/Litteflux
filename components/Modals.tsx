@@ -479,7 +479,6 @@ export const InfluencerFormModal = ({ influencer, onClose, onSubmit, role }: { i
       </form>
     </ModalBase>
   );
-  );
 };
 
 interface NoteFormModalProps {
