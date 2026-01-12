@@ -282,14 +282,22 @@ export const auth = {
     if (error) throw error;
   },
   async getProfile(userId: string): Promise<UserProfile | null> {
-    console.log("SupabaseService: fetching profile for", userId);
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
-    console.log("SupabaseService: raw profile data:", data, "error:", error);
+    console.log("SupabaseService: fetching profile via RPC for", userId);
+    // Use RPC to bypass RLS potential issues safely
+    const { data, error } = await supabase.rpc('get_user_profile', { target_id: userId });
+
+    console.log("SupabaseService: RPC profile result:", data, "error:", error);
+
     if (error) {
-      console.error("Erro ao buscar perfil no banco:", error.message);
-      throw error;
+      console.error("Erro ao buscar perfil (RPC):", error.message);
+      // Fallback to direct select if RPC fails for some reason (e.g. not deployed yet)
+      const { data: directData, error: directError } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (directError) throw directError;
+      return directData as UserProfile;
     }
-    return data as UserProfile;
+
+    // RPC returns JSON, so we cast it. If null, it returns null.
+    return data as unknown as UserProfile;
   }
 };
 
