@@ -75,9 +75,13 @@ const App: React.FC = () => {
   const closeModal = useCallback(() => setActiveModal(null), []);
 
   const loadProfile = useCallback(async (userId: string) => {
+    console.log("App: loadProfile called for userId:", userId);
     try {
       const userProfile = await auth.getProfile(userId);
+      console.log("App: access profile result:", userProfile);
+
       if (userProfile) {
+        console.log("App: setting profile and role:", userProfile.role);
         setProfile(userProfile);
         setRole(userProfile.role);
       } else {

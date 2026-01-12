@@ -282,7 +282,9 @@ export const auth = {
     if (error) throw error;
   },
   async getProfile(userId: string): Promise<UserProfile | null> {
+    console.log("SupabaseService: fetching profile for", userId);
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    console.log("SupabaseService: raw profile data:", data, "error:", error);
     if (error) {
       console.error("Erro ao buscar perfil no banco:", error.message);
       throw error;
