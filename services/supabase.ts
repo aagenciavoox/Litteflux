@@ -29,12 +29,12 @@ const SUPABASE_KEY = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'VITE_SUPABASE_A
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("CRITICAL: Supabase credentials missing. Please check your environment variables.");
-  throw new Error("Missing Supabase credentials. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file.");
+  throw new Error("Missing Supabase credentials. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in environment variables.");
 }
 
-console.log("Supabase Client Initialized", {
+// Não logar comprimentos ou conteúdos de chaves em produção. Apenas log de inicialização seguro.
+console.debug("Supabase Client Initialized", {
   url: SUPABASE_URL,
-  keyLength: SUPABASE_KEY?.length,
   source: 'Environment Variables'
 });
 

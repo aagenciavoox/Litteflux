@@ -1,4 +1,17 @@
-# Logs
+node_modules/
+dist/
+/.env
+.env.local
+.env.*.local
+.env.*.secret
+/.vite
+/.parcel-cache
+/.next
+/.pnp.cjs
+coverage/
+/.cache
+build/
+*.log# Logs
 logs
 *.log
 npm-debug.log*

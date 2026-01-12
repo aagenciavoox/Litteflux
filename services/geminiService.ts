@@ -1,11 +1,22 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Segurança: Use process.env.API_KEY diretamente
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ensureServer = () => {
+  if (typeof window !== 'undefined') {
+    throw new Error('GeminiService deve ser executado apenas no lado servidor. Não importe este módulo no bundle cliente.');
+  }
+};
+
+const getClient = () => {
+  ensureServer();
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || process.env.GEMINI_API_KEY_SERVER;
+  if (!apiKey) throw new Error('Missing Gemini API key (set GEMINI_API_KEY in server environment)');
+  return new GoogleGenAI({ apiKey });
+};
 
 export const getSmartCampaignAnalysis = async (brand: string, goals: string) => {
   try {
+    const ai = getClient();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Analise o potencial para uma campanha entre a marca "${brand}" e um influenciador para os objetivos: "${goals}". Forneça um resumo estratégico, nível de risco e 3 KPIs recomendados. O resultado DEVE ser em Português do Brasil.`,
@@ -27,10 +38,9 @@ export const getSmartCampaignAnalysis = async (brand: string, goals: string) => 
       }
     });
 
-    // Sanitização de Saída: Validar se é um JSON válido
     const textOutput = response.text;
     if (!textOutput) throw new Error("Resposta vazia do Gemini");
-    
+
     try {
       return JSON.parse(textOutput.trim());
     } catch (parseError) {
@@ -52,6 +62,7 @@ export const getSmartCampaignAnalysis = async (brand: string, goals: string) => 
 
 export const generatePitchEmail = async (brand: string, influencerName: string) => {
   try {
+    const ai = getClient();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Escreva um e-mail de prospecção profissional e amigável em Português do Brasil para uma agência de influenciadores apresentando ${influencerName} para a marca ${brand}. O tom deve ser impactante e conciso.`,
