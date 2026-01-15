@@ -283,22 +283,70 @@ export const auth = {
     if (error) throw error;
   },
   async getProfile(userId: string): Promise<UserProfile | null> {
-    console.log("SupabaseService: fetching profile via RPC for", userId);
-    // Use RPC to bypass RLS potential issues safely
-    const { data, error } = await supabase.rpc('get_user_profile', { target_id: userId });
+    console.log("SupabaseService: fetching profile for", userId);
 
-    console.log("SupabaseService: RPC profile result:", data, "error:", error);
-
-    if (error) {
-      console.error("Erro ao buscar perfil (RPC):", error.message);
-      // Fallback to direct select if RPC fails for some reason (e.g. not deployed yet)
-      const { data: directData, error: directError } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
-      if (directError) throw directError;
-      return directData as UserProfile;
+    // Primeiro tenta via RPC (mais seguro com RLS)
+    try {
+      const { data, error } = await supabase.rpc('get_user_profile', { target_id: userId });
+      if (!error && data) {
+        console.log("SupabaseService: Profile loaded via RPC");
+        return data as unknown as UserProfile;
+      }
+    } catch (e) {
+      console.warn("RPC get_user_profile not available, trying direct select...");
     }
 
-    // RPC returns JSON, so we cast it. If null, it returns null.
-    return data as unknown as UserProfile;
+    // Fallback: select direto
+    try {
+      const { data: directData, error: directError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (!directError && directData) {
+        console.log("SupabaseService: Profile loaded via direct select");
+        return directData as UserProfile;
+      }
+    } catch (e) {
+      console.warn("Direct select failed, will try to create profile...");
+    }
+
+    // Se não encontrou perfil, tenta criar um básico
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const newProfile = {
+          id: userId,
+          email: user.email || '',
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário',
+          role: UserRole.GUEST,
+          status: 'APROVADO',
+          is_admin: false,
+          permissions: {}
+        };
+
+        const { error: insertError } = await supabase.from('profiles').upsert(newProfile);
+
+        if (!insertError) {
+          console.log("SupabaseService: Created new profile for user");
+          return newProfile as UserProfile;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to create profile:", e);
+    }
+
+    // Retorna um perfil mínimo para não bloquear a UI
+    console.warn("SupabaseService: Returning minimal fallback profile");
+    const { data: { user } } = await supabase.auth.getUser();
+    return {
+      id: userId,
+      email: user?.email || '',
+      full_name: user?.user_metadata?.full_name || 'Usuário',
+      role: UserRole.GUEST,
+      status: 'APROVADO' as any
+    } as UserProfile;
   },
 
   async getProfileWithPermissions(userId: string): Promise<UserProfile | null> {

@@ -83,51 +83,32 @@ const App: React.FC = () => {
   const closeModal = useCallback(() => setActiveModal(null), []);
 
   const loadProfile = useCallback(async (userId: string) => {
-    // 1. Otimização: Tentar ler cache local primeiro para evitar "flicker" de Guest sem necessidade
+    console.log("App: Loading profile for", userId);
+
+    // Usar cache para feedback imediato enquanto carrega
     const cachedRole = localStorage.getItem(`role_${userId}`);
     if (cachedRole) {
-      console.log("App: Using cached role:", cachedRole);
       setRole(cachedRole as UserRole);
     }
 
-    let attempt = 1;
-    let loaded = false;
+    try {
+      const userProfile = await auth.getProfile(userId);
 
-    while (attempt <= 3 && !loaded) {
-      console.log(`App: loadProfile attempt ${attempt} for ${userId}`);
-      try {
-        const userProfile = await auth.getProfile(userId);
-
-        if (userProfile) {
-          console.log("App: Profile Loaded:", userProfile.role);
-          setProfile(userProfile);
-          setRole(userProfile.role);
-
-          // Persistir cache
-          localStorage.setItem(`role_${userId}`, userProfile.role);
-          loaded = true;
-        } else {
-          console.warn(`App: Profile empty on attempt ${attempt}`);
-        }
-      } catch (e) {
-        console.error(`App: Profile load error attempt ${attempt}:`, e);
+      if (userProfile) {
+        console.log("App: Profile Loaded:", userProfile.role);
+        setProfile(userProfile);
+        setRole(userProfile.role);
+        localStorage.setItem(`role_${userId}`, userProfile.role);
+      } else {
+        // Se não conseguiu carregar, define perfil mínimo
+        console.warn("App: No profile returned, using guest role");
+        setRole(UserRole.GUEST);
       }
-
-      if (!loaded) {
-        attempt++;
-        if (attempt <= 3) {
-          await new Promise(r => setTimeout(r, 1500)); // Espera real bloqueante
-        }
-      }
-    }
-
-    if (!loaded) {
-      console.error("App: Failed to load profile after retries.");
-      // Se não conseguimos carregar e não temos cache, talvez seja melhor deslogar
-      if (!cachedRole) {
-        addToast('Erro crítico de perfil. Reconectando...', 'ERROR');
-        await auth.signOut();
-      }
+    } catch (e) {
+      console.error("App: Profile load error:", e);
+      // Em caso de erro, não bloqueia a UI - usa guest
+      setRole(UserRole.GUEST);
+      addToast('Erro ao carregar perfil. Usando acesso limitado.', 'ERROR');
     }
   }, [addToast]);
 
